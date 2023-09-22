@@ -1,3 +1,43 @@
-const welcomeText = "Welcome to Hell, friends";
+import * as contactsBook from "./contacts.js";
+import {program} from "commander";
+import { Command } from "commander";
 
-console.log(welcomeText);
+const { Command } = require("commander");
+const program = new Command();
+program
+  .option('-a, --action <type>', 'choose action')
+  .option('-i, --id <type>', 'user id')
+  .option('-n, --name <type>', 'user name')
+  .option('-e, --email <type>', 'user email')
+  .option('-p, --phone <type>', 'user phone');
+
+program.parse(process.argv);
+
+const argv = program.opts();
+
+const invokeAction = async ({action, id, name, email, phone})=> {
+  try {
+      switch(action) {
+          case "list":
+              const contactList = await contactsBook.listContacts();
+              return console.log(contactList);
+          case "get":
+              const oneContact = await contactsBook.getContactById(id);
+              return console.log(oneContact);
+          case "add":
+              const newContact = await contactsBook.addContact({name, email, phone});
+              return console.log(newContact);
+          case "remove":
+              const deleteContact = await contactsBook.removeContact(id);
+              return console.log(deleteContact);
+          default:
+            console.warn('\x1B[31m Unknown action type!');
+      }
+  }
+  catch(error) {
+      console.log(error.message);
+      throw error;
+  }
+}
+
+invokeAction(argv);
